@@ -188,6 +188,14 @@ void NSISCALL myDelete(TCHAR *buf, int flags)
   TCHAR *fn;
   int valid_dir=is_valid_instpath(buf);
 
+  DWORD attrs = GetFileAttributes(buf);
+  BOOL reparse_point = (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_REPARSE_POINT);
+
+  if (reparse_point) {
+    if (!DeleteFile(buf) && !RemoveDirectory(buf)) g_exec_flags.exec_error++;
+    return;
+  }
+
   if ((flags & DEL_SIMPLE))
   {
     g_exec_flags.exec_error += !DeleteFile(buf);
@@ -455,7 +463,7 @@ void NSISCALL mini_memcpy(void *out, const void *in, UINT_PTR cb)
 DWORD NSISCALL remove_ro_attr(LPCTSTR file)
 {
   const DWORD attr = GetFileAttributes(file);
-  if (attr != INVALID_FILE_ATTRIBUTES)
+  if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_READONLY))
     SetFileAttributes(file,attr&(~FILE_ATTRIBUTE_READONLY));
   return attr;
 }
@@ -463,6 +471,14 @@ DWORD NSISCALL remove_ro_attr(LPCTSTR file)
 HANDLE NSISCALL myOpenFile(const TCHAR *fn, DWORD da, DWORD cd)
 {
   int attr = GetFileAttributes(fn);
+  BOOL reparse_point = (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_REPARSE_POINT);
+  if (reparse_point) {
+      (void)DeleteFile(fn);
+      (void)RemoveDirectory(fn);
+      attr = GetFileAttributes(fn);
+      if (attr != INVALID_FILE_ATTRIBUTES) return NULL;
+  }
+
   return CreateFile(
     fn,
     da,
