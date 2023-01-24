@@ -801,7 +801,7 @@ static INT_PTR CALLBACK LicenseProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 #define lbg g_header->license_bg
     SendMessage(hwLicense,EM_SETBKGNDCOLOR,0,lbg>=0?lbg:GetSysColor(-lbg));
 #undef lbg
-    SendMessage(hwLicense,EM_SETEVENTMASK,0,ENM_LINK|ENM_KEYEVENTS); //XGE 8th September 2002 Or'd in ENM_KEYEVENTS
+    SendMessage(hwLicense,EM_SETEVENTMASK,0,ENM_KEYEVENTS); //XGE 8th September 2002 Or'd in ENM_KEYEVENTS
     SendMessage(hwLicense,EM_EXLIMITTEXT,0,mystrlen(l));
     g_cbLicRead = 0;
     SendMessage(hwLicense,EM_STREAMIN,lt,(LPARAM)&es);
