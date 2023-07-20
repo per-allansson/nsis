@@ -3,7 +3,7 @@
  * 
  * This file is a part of NSIS.
  * 
- * Copyright (C) 1999-2022 Nullsoft and Contributors
+ * Copyright (C) 1999-2023 Nullsoft and Contributors
  * 
  * Licensed under the zlib/libpng license (the "License");
  * you may not use this file except in compliance with the License.
@@ -332,6 +332,7 @@ class CEXEBuild {
     int parseScript();
     int includeScript(const TCHAR *f, NStreamEncoding&enc);
     TCHAR* GetMacro(const TCHAR *macroname, TCHAR**macroend = 0);
+    TCHAR* GetMacro(size_t idx);
     bool MacroExists(const TCHAR *macroname) { return !!GetMacro(macroname); }
     LANGID ParseLangIdParameter(const LineParser&line, int token);
     int LoadLicenseFile(const TCHAR *file, TCHAR** pdata, const TCHAR *cmdname, WORD AnsiCP);

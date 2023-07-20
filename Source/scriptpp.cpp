@@ -3,7 +3,7 @@
  * 
  * This file is a part of NSIS.
  * 
- * Copyright (C) 1999-2022 Nullsoft and Contributors
+ * Copyright (C) 1999-2023 Nullsoft and Contributors
  * 
  * Licensed under the zlib/libpng license (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,6 +255,21 @@ TCHAR* CEXEBuild::GetMacro(const TCHAR *macroname, TCHAR**macroend /*= 0*/)
       if (macroend) *macroend = ++t;
       return mbeg;
     }
+  }
+  return 0;
+}
+
+TCHAR* CEXEBuild::GetMacro(size_t idx)
+{
+  TCHAR *t = (TCHAR*)m_macros.get(), *mbufbeg = t;
+  for (size_t i = 0, cbAll = m_macros.getlen(); t && *t; ++t)
+  {
+    if ((size_t)t - (size_t)mbufbeg >= cbAll) break;
+    if (i++ == idx) return t;
+    t += _tcslen(t) + 1; // advance over macro name
+    while (*t) t += _tcslen(t) + 1; // advance over parameters
+    t++; // Separator between parameters and data
+    while (*t) t += _tcslen(t) + 1; // advance over data
   }
   return 0;
 }
@@ -875,7 +890,6 @@ int CEXEBuild::pp_define(LineParser&line)
   {
     line.eattoken();
     define = line.gettoken_str(1);
-    if (dupemode == 1 && definedlist.find(define)) return PS_OK;
   }
 
   if (!_tcsicmp(define, _T("/date")) || !_tcsicmp(define, _T("/utcdate")))
@@ -1009,6 +1023,7 @@ int CEXEBuild::pp_define(LineParser&line)
   if (dupemode == 2) definedlist.del(define);
   if (definedlist.add(define, value))
   {
+    if (dupemode == 1) return PS_OK;
     ERROR_MSG(_T("!define: \"%") NPRIs _T("\" already defined!\n"), define);
     return PS_ERROR;
   }

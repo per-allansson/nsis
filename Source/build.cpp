@@ -3,7 +3,7 @@
  * 
  * This file is a part of NSIS.
  * 
- * Copyright (C) 1999-2022 Nullsoft and Contributors
+ * Copyright (C) 1999-2023 Nullsoft and Contributors
  * 
  * Licensed under the zlib/libpng license (the "License");
  * you may not use this file except in compliance with the License.
@@ -2326,8 +2326,8 @@ void CEXEBuild::AddStandardStrings()
 #ifdef NSIS_CONFIG_UNINSTALL_SUPPORT
   if (uninstall_mode)
   {
-    cur_header->str_uninstchild = add_asciistring(_T("$TEMP\\Un_$1.exe"));
-    cur_header->str_uninstcmd = add_asciistring(_T("\"$TEMP\\Un_$1.exe\" $0 _?=$INSTDIR\\"));
+    cur_header->str_uninstchild = add_asciistring(_T("$TEMP\\Un.exe"));
+    cur_header->str_uninstcmd = add_asciistring(_T("\"$TEMP\\Un.exe\" $0 _?=$INSTDIR\\"));
   }
 #endif//NSIS_CONFIG_UNINSTALL_SUPPORT
 #ifdef NSIS_SUPPORT_MOVEONREBOOT
@@ -3461,6 +3461,24 @@ int CEXEBuild::parse_pragma(LineParser &line)
       const TCHAR *name = line.gettoken_str(3);
       int succ, num = line.gettoken_intx(4, &succ);SCRIPT_MSG(_T("%#x %d\n"),num,succ);
       return ((succ ? definedlist.set_si32(name, num) : definedlist.set(name, _T(""))), rvSucc);
+    }
+    if (line.gettoken_enum(2, _T("dump\0")) == 0)
+    {
+      if (line.gettoken_enum(3, _T("defines\0")) == 0)
+      {
+        for (UINT i = 0, c = definedlist.getnum(); i < c; ++i)
+          SCRIPT_MSG(_T("%") NPRIs _T("=%") NPRIs _T("\n"), definedlist.getname(i), definedlist.getvalue(i));
+      }
+      else if (line.gettoken_enum(3, _T("macros\0")) == 0)
+      {
+        const TCHAR *mnam;
+        for (size_t i = 0; (mnam = GetMacro(i)) != 0; ++i)
+          SCRIPT_MSG(_T("%") NPRIs _T("\n"), mnam);
+      }
+      else
+      {
+        SCRIPT_MSG(_T("V=%d\n"), get_verbosity());
+      }
     }
     return rvErr;
   }

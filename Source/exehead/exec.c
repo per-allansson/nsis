@@ -3,7 +3,7 @@
  * 
  * This file is a part of NSIS.
  * 
- * Copyright (C) 1999-2022 Nullsoft and Contributors
+ * Copyright (C) 1999-2023 Nullsoft and Contributors
  * 
  * Licensed under the zlib/libpng license (the "License");
  * you may not use this file except in compliance with the License.
@@ -271,7 +271,14 @@ static int NSISCALL ExecuteEntry(entry *entry_)
   //var4 = g_usrvars[parm4];
   //var5 = g_usrvars[parm5];
 
+#if __GNUC__ >= 12
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
   g_parms = lent.offsets;
+#if __GNUC__ >= 12
+#pragma GCC diagnostic pop
+#endif
 
   switch (which)
   {
